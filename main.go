@@ -11,11 +11,14 @@ type Player struct {
 	Score int
 }
 
+var playerUpdate map[int][]int
+
 // Game function running dice game
 func Game(numPlayers, numDice int) {
 	players := initializePlayers(numPlayers, numDice)
 
 	for round := 1; ; round++ {
+		playerUpdate = make(map[int][]int)
 		fmt.Printf("==================\nGiliran %d lempar dadu:\n", round)
 		performRoll(players)
 
@@ -25,7 +28,7 @@ func Game(numPlayers, numDice int) {
 
 		if len(activePlayers) == 1 {
 			fmt.Printf("==================\nGame berakhir karena hanya pemain #%d yang memiliki dadu.\n", activePlayers[0].ID)
-			fmt.Printf("Game dimenangkan oleh pemain #%d karena memiliki poin lebih banyak dari pemain lainnya.\n", findWinner(players))
+			fmt.Printf("Game dimenangkan oleh pemain #%d karena memiliki poin lebih banyak dari pemain lainnya.\n", findWinner(activePlayers))
 			break
 		}
 	}
@@ -65,13 +68,28 @@ func evaluateRound(players []*Player) []*Player {
 		}
 	}
 
-	return activePlayers
+	var playersResult = updatePlayerDice(activePlayers)
+
+	return playersResult
 }
 
-// evalute result from dice every player
+// update player dice based on playerUpdate
+func updatePlayerDice(players []*Player) []*Player {
+	for i, player := range players {
+		if updateValue, found := playerUpdate[player.ID]; found {
+			// Directly update the player's Dice with updateValue
+			players[i].Dice = append(players[i].Dice, updateValue...)
+		}
+	}
+
+	return players
+}
+
+// evaluate result from dice every player
 func evaluatePlayer(player *Player, allPlayers, activePlayers []*Player, index int) (*Player, []*Player) {
 	newActivePlayers := make([]*Player, len(activePlayers))
 	copy(newActivePlayers, activePlayers)
+	var arraydie = []int{}
 
 	for _, otherPlayer := range allPlayers {
 		if otherPlayer.ID != player.ID && len(otherPlayer.Dice) > 0 {
@@ -82,10 +100,10 @@ func evaluatePlayer(player *Player, allPlayers, activePlayers []*Player, index i
 					player.Score++
 					player.Dice = removeDie(player.Dice, j)
 				case 1:
-					nextPlayerIndex := (index + 1) % len(allPlayers)
-					allPlayers[nextPlayerIndex].Dice = append(allPlayers[nextPlayerIndex].Dice, die)
+					nextPlayerIndex := (index + 2)
+					arraydie = append(arraydie, 1)
+					playerUpdate[nextPlayerIndex] = append(playerUpdate[nextPlayerIndex], arraydie...)
 					player.Dice = removeDie(player.Dice, j)
-					j--
 				}
 			}
 		}
@@ -105,7 +123,7 @@ func displayPlayers(players []*Player) {
 	}
 }
 
-// function to find player winner with highest point
+// function to find player winner with the highest point
 func findWinner(players []*Player) int {
 	winnerID := 0
 	maxScore := 0
