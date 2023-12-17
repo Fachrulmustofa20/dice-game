@@ -89,7 +89,6 @@ func updatePlayerDice(players []*Player) []*Player {
 func evaluatePlayer(player *Player, allPlayers, activePlayers []*Player, index int) (*Player, []*Player) {
 	newActivePlayers := make([]*Player, len(activePlayers))
 	copy(newActivePlayers, activePlayers)
-	var arraydie = []int{}
 
 	for _, otherPlayer := range allPlayers {
 		if otherPlayer.ID != player.ID && len(otherPlayer.Dice) > 0 {
@@ -100,9 +99,13 @@ func evaluatePlayer(player *Player, allPlayers, activePlayers []*Player, index i
 					player.Score++
 					player.Dice = removeDie(player.Dice, j)
 				case 1:
-					nextPlayerIndex := (index + 2)
-					arraydie = append(arraydie, 1)
-					playerUpdate[nextPlayerIndex] = append(playerUpdate[nextPlayerIndex], arraydie...)
+					var nextPlayerIndex int
+					if (index + 1) == len(allPlayers) {
+						nextPlayerIndex = 1
+					} else {
+						nextPlayerIndex = (index + 2)
+					}
+					playerUpdate[nextPlayerIndex] = append(playerUpdate[nextPlayerIndex], 1)
 					player.Dice = removeDie(player.Dice, j)
 				}
 			}
