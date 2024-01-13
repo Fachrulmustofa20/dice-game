@@ -28,7 +28,7 @@ func Game(numPlayers, numDice int) {
 
 		if len(activePlayers) == 1 {
 			fmt.Printf("==================\nGame berakhir karena hanya pemain #%d yang memiliki dadu.\n", activePlayers[0].ID)
-			fmt.Printf("Game dimenangkan oleh pemain #%d karena memiliki poin lebih banyak dari pemain lainnya.\n", findWinner(activePlayers))
+			fmt.Printf("Game dimenangkan oleh pemain #%d karena memiliki poin lebih banyak dari pemain lainnya.\n", findWinner(players))
 			break
 		}
 	}
